@@ -351,3 +351,5 @@ Contributions are welcome! Please follow these steps:
 5. **Submit a Pull Request**: Describe your changes and submit a PR for review.
 
 ---
+
+![Logo](static/images/logo.jpeg)
