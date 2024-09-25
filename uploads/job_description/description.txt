@@ -1,0 +1,9 @@
+Bachelor’s degree in Computer Science, Mathematics, or a related field; Master’s or PhD preferred.
+Proven experience in machine learning and deep learning frameworks such as TensorFlow, Keras, or PyTorch.
+Strong programming skills in Python, Java, or C++.
+Proficiency with data science toolkits and libraries.
+Experience with cloud services like AWS, Azure, or Google Cloud.
+Understanding of data structures, data modeling, and software architecture.
+Excellent analytical and problem-solving abilities.
+Ability to work collaboratively in a team environment.
+Strong communication skills to translate complex AI concepts to non-experts.

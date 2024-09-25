@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ATS System - Upload CVs and Job Description</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <!-- Optional: Logo Image -->
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ATS Logo" width="30" height="30" class="d-inline-block align-text-top">
+                ATS System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Add more navigation links if needed -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Dark Mode Toggle -->
+                    <li class="nav-item">
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" id="darkModeToggle">
+                            <label class="form-check-label text-white" for="darkModeToggle">Dark Mode</label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Spinner Overlay -->
+    <div class="spinner-overlay" id="spinner" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Processing...</span>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress mt-5" id="progressBar" style="height: 25px; display: none;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+             role="progressbar" 
+             style="width: 0%;" 
+             aria-valuenow="0" 
+             aria-valuemin="0" 
+             aria-valuemax="100" 
+             id="progressBarFill">
+            0%
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Applicant Tracking System</h1>
+        
+        <!-- Display Messages -->
+        <div id="messages"></div>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="cvs" class="form-label">Upload CVs (PDF or TXT):</label>
+                <input class="form-control" type="file" name="cvs" id="cvs" multiple required>
+                <div class="form-text">You can upload multiple CVs at once.</div>
+            </div>
+            <div class="mb-3">
+                <label for="job_description" class="form-label">Upload Job Description (PDF or TXT):</label>
+                <input class="form-control" type="file" name="job_description" id="job_description" required>
+            </div>
+            <div class="mb-3">
+                <label for="top_n" class="form-label">Number of Top CVs to Display:</label>
+                <input class="form-control" type="number" name="top_n" id="top_n" min="1" required>
+            </div>
+            <input type="hidden" name="sid" id="sid" value="">
+            <button type="submit" class="btn btn-primary w-100">Submit</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and dependencies (Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SocketIO -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script>
+        // Initialize SocketIO
+        var socket = io();
+
+        socket.on('connect', function() {
+            console.log('Connected to server with sid:', socket.id);
+            // Set the sid in the hidden input field
+            document.getElementById('sid').value = socket.id;
+        });
+
+        socket.on('progress_update', function(data) {
+            showProgressBar();
+            updateProgressBar(data.percent);
+            if(data.percent >= 100){
+                hideSpinner();
+                hideProgressBar();
+            }
+        });
+
+        socket.on('processing_complete', function() {
+            hideSpinner();
+            hideProgressBar();
+            // Redirect to results page
+            window.location.href = '/results/' + socket.id;
+        });
+
+        socket.on('processing_error', function(data) {
+            hideSpinner();
+            hideProgressBar();
+            displayMessage('danger', data.message);
+        });
+
+        // Function to display messages dynamically
+        function displayMessage(category, message) {
+            var messagesDiv = document.getElementById('messages');
+            var alertDiv = document.createElement('div');
+            alertDiv.classList.add('alert', `alert-${category}`, 'alert-dismissible', 'fade', 'show');
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            messagesDiv.appendChild(alertDiv);
+        }
+    </script>
+</body>
+</html>
